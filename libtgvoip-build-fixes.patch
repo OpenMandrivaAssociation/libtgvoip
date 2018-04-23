@@ -1,46 +1,6 @@
-From 58b79cc2f7ebdb9f70ae726c60a1a51772d42180 Mon Sep 17 00:00:00 2001
-From: Vitaly Zaitsev <vitaly@easycoding.org>
-Date: Thu, 6 Jul 2017 17:27:01 +0200
-Subject: [PATCH] Fixed build of libtgvoip under Fedora as shared library.
-
----
- VoIPController.cpp                           |  5 +++-
- libtgvoip.gyp                                | 17 +++++++++-----
- webrtc_dsp/webrtc/common_audio/wav_file.cc   | 20 ++++++++++++----
- webrtc_dsp/webrtc/common_audio/wav_header.cc | 34 +++++++++++++++++++++++++++-
- webrtc_dsp/webrtc/typedefs.h                 | 14 +++++++++++-
- 5 files changed, 76 insertions(+), 14 deletions(-)
-
-diff --git a/VoIPController.cpp b/VoIPController.cpp
-index ab7e2fd..cb2fabd 100644
---- a/VoIPController.cpp
-+++ b/VoIPController.cpp
-@@ -103,9 +103,12 @@ bool VoIPController::didInitWin32TimeScale = false;
- #define SHA256_LENGTH 32
- 
- #ifndef TGVOIP_USE_CUSTOM_CRYPTO
-+extern "C" {
- #include <openssl/sha.h>
- #include <openssl/aes.h>
-+#include <openssl/modes.h>
- #include <openssl/rand.h>
-+}
- 
- void tgvoip_openssl_aes_ige_encrypt(uint8_t* in, uint8_t* out, size_t length, uint8_t* key, uint8_t* iv){
- 	AES_KEY akey;
-@@ -134,7 +137,7 @@ void tgvoip_openssl_sha256(uint8_t* msg, size_t len, uint8_t* output){
- void tgvoip_openssl_aes_ctr_encrypt(uint8_t* inout, size_t length, uint8_t* key, uint8_t* iv, uint8_t* ecount, uint32_t* num){
- 	AES_KEY akey;
- 	AES_set_encrypt_key(key, 32*8, &akey);
--	AES_ctr128_encrypt(inout, inout, length, &akey, iv, ecount, num);
-+	CRYPTO_ctr128_encrypt(inout, inout, length, &akey, iv, ecount, num, (block128_f) AES_encrypt);
- }
- 
- voip_crypto_functions_t VoIPController::crypto={
-diff --git a/libtgvoip.gyp b/libtgvoip.gyp
-index 527708d..f5db56a 100644
---- a/libtgvoip.gyp
-+++ b/libtgvoip.gyp
+diff -up libtgvoip-1.0.3/libtgvoip.gyp.0000~ libtgvoip-1.0.3/libtgvoip.gyp
+--- libtgvoip-1.0.3/libtgvoip.gyp.0000~	2017-12-27 18:25:47.000000000 +0100
++++ libtgvoip-1.0.3/libtgvoip.gyp	2018-04-23 13:12:41.613747510 +0200
 @@ -4,7 +4,8 @@
      'targets': [
        {
@@ -65,6 +25,15 @@ index 527708d..f5db56a 100644
          ],
          'direct_dependent_settings': {
            'include_dirs': [
+@@ -240,7 +241,7 @@
+           '<(tgvoip_src_loc)/webrtc_dsp/webrtc/typedefs.h',
+ 
+         ],
+-        'libraries': [],
++        'libraries': [ 'opus', 'crypto' ],
+         'configurations': {
+           'Debug': {},
+           'Release': {},
 @@ -381,9 +382,6 @@
                'defines': [
                  'WEBRTC_POSIX',
@@ -89,10 +58,34 @@ index 527708d..f5db56a 100644
          ],
        },
      ],
-diff --git a/webrtc_dsp/webrtc/common_audio/wav_file.cc b/webrtc_dsp/webrtc/common_audio/wav_file.cc
-index 2b9098a..4f99da7 100644
---- a/webrtc_dsp/webrtc/common_audio/wav_file.cc
-+++ b/webrtc_dsp/webrtc/common_audio/wav_file.cc
+diff -up libtgvoip-1.0.3/VoIPController.cpp.0000~ libtgvoip-1.0.3/VoIPController.cpp
+--- libtgvoip-1.0.3/VoIPController.cpp.0000~	2017-12-27 18:25:47.000000000 +0100
++++ libtgvoip-1.0.3/VoIPController.cpp	2018-04-23 13:10:12.887667638 +0200
+@@ -103,9 +103,12 @@ bool VoIPController::didInitWin32TimeSca
+ #define SHA256_LENGTH 32
+ 
+ #ifndef TGVOIP_USE_CUSTOM_CRYPTO
++extern "C" {
+ #include <openssl/sha.h>
+ #include <openssl/aes.h>
++#include <openssl/modes.h>
+ #include <openssl/rand.h>
++}
+ 
+ void tgvoip_openssl_aes_ige_encrypt(uint8_t* in, uint8_t* out, size_t length, uint8_t* key, uint8_t* iv){
+ 	AES_KEY akey;
+@@ -134,7 +137,7 @@ void tgvoip_openssl_sha256(uint8_t* msg,
+ void tgvoip_openssl_aes_ctr_encrypt(uint8_t* inout, size_t length, uint8_t* key, uint8_t* iv, uint8_t* ecount, uint32_t* num){
+ 	AES_KEY akey;
+ 	AES_set_encrypt_key(key, 32*8, &akey);
+-	AES_ctr128_encrypt(inout, inout, length, &akey, iv, ecount, num);
++	CRYPTO_ctr128_encrypt(inout, inout, length, &akey, iv, ecount, num, (block128_f) AES_encrypt);
+ }
+ 
+ voip_crypto_functions_t VoIPController::crypto={
+diff -up libtgvoip-1.0.3/webrtc_dsp/webrtc/common_audio/wav_file.cc.0000~ libtgvoip-1.0.3/webrtc_dsp/webrtc/common_audio/wav_file.cc
+--- libtgvoip-1.0.3/webrtc_dsp/webrtc/common_audio/wav_file.cc.0000~	2017-12-27 18:25:47.000000000 +0100
++++ libtgvoip-1.0.3/webrtc_dsp/webrtc/common_audio/wav_file.cc	2018-04-23 13:10:12.887667638 +0200
 @@ -77,9 +77,6 @@ size_t WavReader::num_samples() const {
  }
  
@@ -103,7 +96,7 @@ index 2b9098a..4f99da7 100644
    // There could be metadata after the audio; ensure we don't read it.
    num_samples = std::min(num_samples, num_samples_remaining_);
    const size_t read =
-@@ -88,6 +85,12 @@ size_t WavReader::ReadSamples(size_t num_samples, int16_t* samples) {
+@@ -88,6 +85,12 @@ size_t WavReader::ReadSamples(size_t num
    RTC_CHECK(read == num_samples || feof(file_handle_));
    RTC_CHECK_LE(read, num_samples_remaining_);
    num_samples_remaining_ -= read;
@@ -136,11 +129,10 @@ index 2b9098a..4f99da7 100644
    RTC_CHECK_EQ(num_samples, written);
    num_samples_ += written;
    RTC_CHECK(num_samples_ >= written);  // detect size_t overflow
-diff --git a/webrtc_dsp/webrtc/common_audio/wav_header.cc b/webrtc_dsp/webrtc/common_audio/wav_header.cc
-index 402ea17..b11ee58 100644
---- a/webrtc_dsp/webrtc/common_audio/wav_header.cc
-+++ b/webrtc_dsp/webrtc/common_audio/wav_header.cc
-@@ -127,7 +127,39 @@ static inline std::string ReadFourCC(uint32_t x) {
+diff -up libtgvoip-1.0.3/webrtc_dsp/webrtc/common_audio/wav_header.cc.0000~ libtgvoip-1.0.3/webrtc_dsp/webrtc/common_audio/wav_header.cc
+--- libtgvoip-1.0.3/webrtc_dsp/webrtc/common_audio/wav_header.cc.0000~	2017-12-27 18:25:47.000000000 +0100
++++ libtgvoip-1.0.3/webrtc_dsp/webrtc/common_audio/wav_header.cc	2018-04-23 13:10:12.887667638 +0200
+@@ -127,7 +127,39 @@ static inline std::string ReadFourCC(uin
    return std::string(reinterpret_cast<char*>(&x), 4);
  }
  #else
@@ -181,10 +173,9 @@ index 402ea17..b11ee58 100644
  #endif
  
  static inline uint32_t RiffChunkSize(size_t bytes_in_payload) {
-diff --git a/webrtc_dsp/webrtc/typedefs.h b/webrtc_dsp/webrtc/typedefs.h
-index c960d95..2252855 100644
---- a/webrtc_dsp/webrtc/typedefs.h
-+++ b/webrtc_dsp/webrtc/typedefs.h
+diff -up libtgvoip-1.0.3/webrtc_dsp/webrtc/typedefs.h.0000~ libtgvoip-1.0.3/webrtc_dsp/webrtc/typedefs.h
+--- libtgvoip-1.0.3/webrtc_dsp/webrtc/typedefs.h.0000~	2017-12-27 18:25:47.000000000 +0100
++++ libtgvoip-1.0.3/webrtc_dsp/webrtc/typedefs.h	2018-04-23 13:10:12.887667638 +0200
 @@ -48,7 +48,19 @@
  #define WEBRTC_ARCH_32_BITS
  #define WEBRTC_ARCH_LITTLE_ENDIAN
@@ -206,6 +197,3 @@ index c960d95..2252855 100644
  #endif
  
  #if !(defined(WEBRTC_ARCH_LITTLE_ENDIAN) ^ defined(WEBRTC_ARCH_BIG_ENDIAN))
--- 
-2.14.3
-

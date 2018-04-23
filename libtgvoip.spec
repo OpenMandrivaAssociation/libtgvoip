@@ -16,8 +16,10 @@ BuildRequires: pkgconfig(libpulse)
 BuildRequires: alsa-oss-devel
 BuildRequires: openssl-devel
 BuildRequires: opus-devel
+BuildRequires: gyp >= 0.1-0.25.0
 BuildRequires: cmake
-BuildRequires: gyp
+BuildRequires: ninja
+BuildRequires: c++-devel
 
 %description
 Provides VoIP library for Telegram clients.
@@ -35,22 +37,19 @@ Requires: %{name}%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
 
 %build
 export VOIPVER="%{version}"
-#export CC=%{_bindir}/gcc
-#export CXX=%{_bindir}/g++
-#export CXXFLAGS="%{optflags} -stdlib=libc++ -lpthread -ldl -std=c++11"
-export CXXFLAGS="%{optflags} -stdlib=libc++"
+export CXXFLAGS="%{optflags} -stdlib=libc++ -lpthread -ldl -std=gnu++17"
 %{__python2} %{_bindir}/gyp --format=cmake --depth=. --generator-output=. -Goutput_dir=out -Gconfig=Release %{name}.gyp
 
 
 pushd out/Release
-    %cmake
-    %make
+	%cmake -G Ninja
+	%ninja_build
 popd
 
 %install
 # Installing shared library...
 mkdir -p "%{buildroot}%{_libdir}"
-install -m 0755 -p out/Release/lib.target/%{name}.so.%{version} "%{buildroot}%{_libdir}/%{name}.so.%{version}"
+install -m 0755 -p out/Release/build/lib.target/%{name}.so.%{version} "%{buildroot}%{_libdir}/%{name}.so.%{version}"
 ln -s %{name}.so.%{version} "%{buildroot}%{_libdir}/%{name}.so.1.0"
 ln -s %{name}.so.%{version} "%{buildroot}%{_libdir}/%{name}.so.1"
 ln -s %{name}.so.%{version} "%{buildroot}%{_libdir}/%{name}.so"
