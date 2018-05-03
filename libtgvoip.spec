@@ -5,7 +5,7 @@
 Summary: VoIP library for Telegram clients
 Name: libtgvoip
 Version: 1.0.3
-Release: 3
+Release: 4
 
 # Libtgvoip shared library - Public Domain.
 # Bundled webrtc library - BSD with patented echo cancellation algorithms.
@@ -39,6 +39,7 @@ VoIP library for Telegram clients
 %package -n %{devname}
 Summary: Development files for %{name}
 Requires: %{libname} = %{EVRD}
+Provides: tgvoip-devel = %{EVRD}
 
 %description -n %{devname}
 %{summary}.
