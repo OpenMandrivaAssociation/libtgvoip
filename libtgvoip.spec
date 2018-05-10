@@ -53,15 +53,15 @@ Provides: tgvoip-devel = %{EVRD}
 #export CC=gcc
 #export CXX=g++
 export VOIPVER="%{version}"
-export CXXFLAGS="%{optflags} -stdlib=libc++ -lpthread -ldl -std=gnu++17"
+#export CXXFLAGS="%{optflags} -stdlib=libc++ -lpthread -ldl -std=gnu++17"
 #export CXXFLAGS="%{optflags} -lpthread -ldl -std=gnu++17"
 export SOVER=%{version}
+export CXXFLAGS="%{optflags} -std=gnu++11 -ldl -lpthread"
 %{__python2} %{_bindir}/gyp --format=cmake --depth=. --generator-output=. -Goutput_dir=out -Gconfig=Release %{name}.gyp
-
 
 pushd out/Release
 	%cmake -G Ninja
-	%ninja_build
+	%ninja_build -j1
 popd
 
 %install
