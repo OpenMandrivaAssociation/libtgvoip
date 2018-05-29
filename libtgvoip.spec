@@ -28,7 +28,9 @@ BuildRequires: gyp >= 0.1-0.25.0
 BuildRequires: cmake
 BuildRequires: ninja
 BuildRequires: python2-pkg-resources
+%ifarch %{ix86} x86_64
 BuildRequires: c++-devel
+%endif
 
 %description
 Provides VoIP library for Telegram clients.
