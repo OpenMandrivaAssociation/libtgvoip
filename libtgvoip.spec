@@ -1,18 +1,22 @@
-%define major	1
+%define major	2
 %define libname	%mklibname tgvoip %{version}
 %define devname	%mklibname -d tgvoip
+%define date 20180529
+%define alpha alpha4
 
 Summary: VoIP library for Telegram clients
 Name: libtgvoip
-Version: 1.0.3
-Release: 5
+Version: 2.0
+Release: 0.%{alpha}.0
 
 # Libtgvoip shared library - Public Domain.
 # Bundled webrtc library - BSD with patented echo cancellation algorithms.
 License: Public Domain and BSD
 URL: https://github.com/grishka/%{name}
 
-Source0: %{url}/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
+# git archive --format=tar --prefix libtgvoip-2.0-alpha4-$(date +%Y%m%d)/ HEAD | xz -vf > ../libtgvoip-2.0-alpha4-$(date +%Y%m%d).tar.xz
+#Source0: %{url}/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
+Source0: libtgvoip-%{version}-%{alpha}-%{date}.tar.xz
 Patch0: %{name}-build-fixes.patch
 
 Provides: bundled(webrtc-audio-processing) = 0.3
@@ -46,15 +50,11 @@ Provides: tgvoip-devel = %{EVRD}
 %{summary}.
 
 %prep
-%setup -n %{name}-%{version}
+%setup -n %{name}-%{version}-%{alpha}-%{date}
 %apply_patches
 
 %build
-#export CC=gcc
-#export CXX=g++
 export VOIPVER="%{version}"
-#export CXXFLAGS="%{optflags} -stdlib=libc++ -lpthread -ldl -std=gnu++17"
-#export CXXFLAGS="%{optflags} -lpthread -ldl -std=gnu++17"
 export SOVER=%{version}
 export CXXFLAGS="%{optflags} -std=gnu++11 -ldl -lpthread"
 %{__python2} %{_bindir}/gyp --format=cmake --depth=. --generator-output=. -Goutput_dir=out -Gconfig=Release %{name}.gyp
@@ -68,7 +68,6 @@ popd
 # Installing shared library...
 mkdir -p "%{buildroot}%{_libdir}"
 install -m 0755 -p out/Release/build/lib.target/%{name}.so.%{version} "%{buildroot}%{_libdir}/%{name}.so.%{version}"
-ln -s %{name}.so.%{version} "%{buildroot}%{_libdir}/%{name}.so.%{major}.0"
 ln -s %{name}.so.%{version} "%{buildroot}%{_libdir}/%{name}.so.%{major}"
 ln -s %{name}.so.%{version} "%{buildroot}%{_libdir}/%{name}.so"
 
