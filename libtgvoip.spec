@@ -22,6 +22,7 @@ Patch0: %{name}-build-fixes.patch
 Provides: bundled(webrtc-audio-processing) = 0.3
 BuildRequires: pkgconfig(libpulse)
 BuildRequires: alsa-oss-devel
+BuildRequires: pkgconfig(alsa)
 BuildRequires: openssl-devel
 BuildRequires: opus-devel
 BuildRequires: gyp >= 0.1-0.25.0
