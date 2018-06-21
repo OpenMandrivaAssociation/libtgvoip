@@ -6,8 +6,8 @@
 
 Summary: VoIP library for Telegram clients
 Name: libtgvoip
-Version: 2.0
-Release: 0.%{alpha}.0
+Version: 2.1
+Release: 1
 
 # Libtgvoip shared library - Public Domain.
 # Bundled webrtc library - BSD with patented echo cancellation algorithms.
@@ -16,7 +16,8 @@ URL: https://github.com/grishka/%{name}
 
 # git archive --format=tar --prefix libtgvoip-2.0-alpha4-$(date +%Y%m%d)/ HEAD | xz -vf > ../libtgvoip-2.0-alpha4-$(date +%Y%m%d).tar.xz
 #Source0: %{url}/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
-Source0: libtgvoip-%{version}-%{alpha}-%{date}.tar.xz
+#Source0: libtgvoip-%{version}-%{alpha}-%{date}.tar.xz
+Source0: https://github.com/grishka/libtgvoip/archive/%{version}.tar.gz
 Patch0: %{name}-build-fixes.patch
 
 Provides: bundled(webrtc-audio-processing) = 0.3
@@ -53,7 +54,7 @@ Provides: tgvoip-devel = %{EVRD}
 %{summary}.
 
 %prep
-%setup -n %{name}-%{version}-%{alpha}-%{date}
+%setup -n %{name}-%{version}
 %apply_patches
 
 %build
