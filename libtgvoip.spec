@@ -6,7 +6,7 @@
 
 Summary: VoIP library for Telegram clients
 Name: libtgvoip
-Version: 2.1
+Version: 2.4.2
 Release: 1
 
 # Libtgvoip shared library - Public Domain.
@@ -60,12 +60,12 @@ Provides: tgvoip-devel = %{EVRD}
 %build
 export VOIPVER="%{version}"
 export SOVER=%{version}
-export CXXFLAGS="%{optflags} -std=gnu++11 -ldl -lpthread"
+export CXXFLAGS="%{optflags} -std=gnu++11 -ldl -lpthread -lopus -lssl -lcrypto"
 %{__python2} %{_bindir}/gyp --format=cmake --depth=. --generator-output=. -Goutput_dir=out -Gconfig=Release %{name}.gyp
 
 pushd out/Release
 	%cmake -G Ninja
-	%ninja_build -j1
+	%ninja_build
 popd
 
 %install
