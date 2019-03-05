@@ -7,7 +7,7 @@
 Summary: VoIP library for Telegram clients
 Name: libtgvoip
 Version: 2.4.2
-Release: 1
+Release: 2
 
 # Libtgvoip shared library - Public Domain.
 # Bundled webrtc library - BSD with patented echo cancellation algorithms.
@@ -76,9 +76,13 @@ ln -s %{name}.so.%{version} "%{buildroot}%{_libdir}/%{name}.so.%{major}"
 ln -s %{name}.so.%{version} "%{buildroot}%{_libdir}/%{name}.so"
 
 # Installing additional development files...
-mkdir -p "%{buildroot}%{_includedir}/%{name}/audio"
+mkdir -p "%{buildroot}%{_includedir}/%{name}"
 find . -maxdepth 1 -type f -name "*.h" -exec install -m 0644 -p '{}' %{buildroot}%{_includedir}/%{name} \;
+mkdir -p "%{buildroot}%{_includedir}/%{name}/audio"
 find audio -maxdepth 1 -type f -name "*.h" -exec install -m 0644 -p '{}' %{buildroot}%{_includedir}/%{name}/audio \;
+mkdir -p "%{buildroot}%{_includedir}/%{name}/video"
+find video -maxdepth 1 -type f -name "*.h" -exec install -m 0644 -p '{}' %{buildroot}%{_includedir}/%{name}/video \;
+
 
 %files -n %{libname}
 %{_libdir}/%{name}.so.*
