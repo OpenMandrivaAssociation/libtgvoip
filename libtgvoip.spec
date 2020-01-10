@@ -55,7 +55,7 @@ Provides: tgvoip-devel = %{EVRD}
 
 %prep
 %setup -n %{name}-%{version}
-%apply_patches
+%autopatch -p1
 
 %build
 export VOIPVER="%{version}"
