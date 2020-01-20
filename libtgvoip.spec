@@ -7,7 +7,7 @@
 Summary: VoIP library for Telegram clients
 Name: libtgvoip
 Version: 2.4.4
-Release: 1
+Release: 2
 
 # Libtgvoip shared library - Public Domain.
 # Bundled webrtc library - BSD with patented echo cancellation algorithms.
@@ -31,7 +31,7 @@ BuildRequires: cmake
 BuildRequires: ninja
 BuildRequires: python2-pkg-resources
 %ifarch x86_64
-BuildRequires: c++-devel
+BuildRequires: llvm-devel
 %endif
 
 %description
@@ -82,7 +82,24 @@ mkdir -p "%{buildroot}%{_includedir}/%{name}/audio"
 find audio -maxdepth 1 -type f -name "*.h" -exec install -m 0644 -p '{}' %{buildroot}%{_includedir}/%{name}/audio \;
 mkdir -p "%{buildroot}%{_includedir}/%{name}/video"
 find video -maxdepth 1 -type f -name "*.h" -exec install -m 0644 -p '{}' %{buildroot}%{_includedir}/%{name}/video \;
+pwd
+mkdir -p "%{buildroot}%{_libdir}/pkgconfig"
 
+cat <<EOF >%name.pc
+includedir=%_includedir
+
+Name: %name
+Description: %summary
+URL: %url
+Version: %version
+Requires: opus
+Conflicts:
+Libs: -ltgvoip
+Libs.private: -ldl -lpthread -lopus -lcrypto
+Cflags: -I\${includedir}/tgvoip
+EOF
+
+install -m 0644 %{name}.pc %{buildroot}%{_libdir}/pkgconfig
 
 %files -n %{libname}
 %{_libdir}/%{name}.so.*
@@ -90,3 +107,4 @@ find video -maxdepth 1 -type f -name "*.h" -exec install -m 0644 -p '{}' %{build
 %files -n %{devname}
 %{_includedir}/%{name}
 %{_libdir}/%{name}.so
+%{_libdir}/pkgconfig/*.pc
