@@ -85,10 +85,10 @@ find video -maxdepth 1 -type f -name "*.h" -exec install -m 0644 -p '{}' %{build
 pwd
 mkdir -p "%{buildroot}%{_libdir}/pkgconfig"
 
-cat <<EOF >%name.pc
+cat <<EOF >tgvoip.pc
 includedir=%_includedir
 
-Name: %name
+Name: tgvoip
 Description: %summary
 URL: %url
 Version: %version
@@ -96,10 +96,10 @@ Requires: opus
 Conflicts:
 Libs: -ltgvoip
 Libs.private: -ldl -lpthread -lopus -lcrypto
-Cflags: -I\${includedir}/tgvoip
+Cflags: -I\${includedir}/%{name}
 EOF
 
-install -m 0644 %{name}.pc %{buildroot}%{_libdir}/pkgconfig
+install -m 0644 tgvoip.pc %{buildroot}%{_libdir}/pkgconfig
 
 %files -n %{libname}
 %{_libdir}/%{name}.so.*
