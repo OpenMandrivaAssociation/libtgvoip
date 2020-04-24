@@ -29,7 +29,7 @@ BuildRequires: opus-devel
 BuildRequires: gyp >= 0.1-0.25.0
 BuildRequires: cmake
 BuildRequires: ninja
-BuildRequires: python2-pkg-resources
+BuildRequires: python3-pkg-resources
 %ifarch x86_64
 BuildRequires: llvm-devel
 %endif
