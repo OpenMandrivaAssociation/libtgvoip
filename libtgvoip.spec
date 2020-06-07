@@ -17,14 +17,14 @@ URL: https://github.com/grishka/%{name}
 # git archive --format=tar --prefix libtgvoip-2.0-alpha4-$(date +%Y%m%d)/ HEAD | xz -vf > ../libtgvoip-2.0-alpha4-$(date +%Y%m%d).tar.xz
 #Source0: %{url}/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
 #Source0: libtgvoip-%{version}-%{alpha}-%{date}.tar.xz
-Source0: https://github.com/grishka/libtgvoip/archive/%{version}.tar.gz
+Source0: https://github.com/telegramdesktop/libtgvoip/archive/%{version}.tar.gz
 Patch0: %{name}-build-fixes.patch
 
 Provides: bundled(webrtc-audio-processing) = 0.3
 BuildRequires: pkgconfig(libpulse)
+BuildRequires: pkgconfig(openssl)
 BuildRequires: alsa-oss-devel
 BuildRequires: pkgconfig(alsa)
-BuildRequires: openssl-devel
 BuildRequires: opus-devel
 BuildRequires: gyp >= 0.1-0.25.0
 BuildRequires: cmake
