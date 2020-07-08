@@ -23,6 +23,7 @@ Patch1: libtgvoip-system-json11.patch
 Provides: bundled(webrtc-audio-processing) = 0.3
 BuildRequires: pkgconfig(libpulse)
 BuildRequires: pkgconfig(openssl)
+BuildRequires: pkgconfig(json11)
 BuildRequires: alsa-oss-devel
 BuildRequires: pkgconfig(alsa)
 BuildRequires: opus-devel
@@ -30,9 +31,6 @@ BuildRequires: gyp >= 0.1-0.25.0
 BuildRequires: cmake
 BuildRequires: ninja
 BuildRequires: python3-pkg-resources
-%ifarch x86_64
-BuildRequires: llvm-devel
-%endif
 
 %description
 Provides VoIP library for Telegram clients.
