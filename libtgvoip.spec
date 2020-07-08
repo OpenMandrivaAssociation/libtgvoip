@@ -1,8 +1,9 @@
 %define major	2
 %define libname	%mklibname tgvoip %{version}
 %define devname	%mklibname -d tgvoip
-%define date 20180529
-%define alpha alpha4
+%global commit0 b98a01ea44916444cb1b9192f80b46f974d296a6
+%global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
+%global date 20200521
 
 Summary: VoIP library for Telegram clients
 Name: libtgvoip
@@ -12,13 +13,12 @@ Release: 2
 # Libtgvoip shared library - Public Domain.
 # Bundled webrtc library - BSD with patented echo cancellation algorithms.
 License: Public Domain and BSD
-URL: https://github.com/grishka/%{name}
 
-# git archive --format=tar --prefix libtgvoip-2.0-alpha4-$(date +%Y%m%d)/ HEAD | xz -vf > ../libtgvoip-2.0-alpha4-$(date +%Y%m%d).tar.xz
-#Source0: %{url}/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
-#Source0: libtgvoip-%{version}-%{alpha}-%{date}.tar.xz
-Source0: https://github.com/telegramdesktop/libtgvoip/archive/%{version}.tar.gz
-Patch0: %{name}-build-fixes.patch
+URL: https://github.com/telegramdesktop/%{name}
+Summary: VoIP library for Telegram clients
+Source0: %{url}/archive/%{commit0}/%{name}-%{shortcommit0}.tar.gz
+Patch0: libtgvoip-cxx-std-version.patch
+Patch1: libtgvoip-system-json11.patch
 
 Provides: bundled(webrtc-audio-processing) = 0.3
 BuildRequires: pkgconfig(libpulse)
@@ -54,35 +54,20 @@ Provides: tgvoip-devel = %{EVRD}
 %{summary}.
 
 %prep
-%setup -n %{name}-%{version}
-%autopatch -p1
+%autosetup -n %{name}-%{commit0} -p1
+rm -f json11.*
 
 %build
-export VOIPVER="%{version}"
-export SOVER=%{version}
-export CXXFLAGS="%{optflags} -std=gnu++11 -ldl -lpthread -lopus -lssl -lcrypto"
-%{_bindir}/gyp --format=cmake --depth=. --generator-output=. -Goutput_dir=out -Gconfig=Release %{name}.gyp
-
-pushd out/Release
-	%cmake -G Ninja
-	%ninja_build
-popd
+#export CC=gcc
+#export CXX=g++
+export OBJCXX="%{__cxx}"
+autoreconf --force --install
+%configure --disable-static
+%make_build
 
 %install
-# Installing shared library...
-mkdir -p "%{buildroot}%{_libdir}"
-install -m 0755 -p out/Release/build/lib.target/%{name}.so.%{version} "%{buildroot}%{_libdir}/%{name}.so.%{version}"
-ln -s %{name}.so.%{version} "%{buildroot}%{_libdir}/%{name}.so.%{major}"
-ln -s %{name}.so.%{version} "%{buildroot}%{_libdir}/%{name}.so"
+%make_install
 
-# Installing additional development files...
-mkdir -p "%{buildroot}%{_includedir}/%{name}"
-find . -maxdepth 1 -type f -name "*.h" -exec install -m 0644 -p '{}' %{buildroot}%{_includedir}/%{name} \;
-mkdir -p "%{buildroot}%{_includedir}/%{name}/audio"
-find audio -maxdepth 1 -type f -name "*.h" -exec install -m 0644 -p '{}' %{buildroot}%{_includedir}/%{name}/audio \;
-mkdir -p "%{buildroot}%{_includedir}/%{name}/video"
-find video -maxdepth 1 -type f -name "*.h" -exec install -m 0644 -p '{}' %{buildroot}%{_includedir}/%{name}/video \;
-pwd
 mkdir -p "%{buildroot}%{_libdir}/pkgconfig"
 
 cat <<EOF >tgvoip.pc
@@ -96,7 +81,7 @@ Requires: opus
 Conflicts:
 Libs: -ltgvoip
 Libs.private: -ldl -lpthread -lopus -lcrypto
-Cflags: -I\${includedir}/%{name}
+Cflags: -I\${includedir}/tgvoip
 EOF
 
 install -m 0644 tgvoip.pc %{buildroot}%{_libdir}/pkgconfig
@@ -105,6 +90,6 @@ install -m 0644 tgvoip.pc %{buildroot}%{_libdir}/pkgconfig
 %{_libdir}/%{name}.so.*
 
 %files -n %{devname}
-%{_includedir}/%{name}
+%{_includedir}/tgvoip
 %{_libdir}/%{name}.so
 %{_libdir}/pkgconfig/*.pc
