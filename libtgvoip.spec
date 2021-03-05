@@ -17,7 +17,6 @@ License: Public Domain and BSD
 URL: https://github.com/telegramdesktop/%{name}
 Summary: VoIP library for Telegram clients
 Source0: %{url}/archive/%{commit0}/%{name}-%{shortcommit0}.tar.gz
-Patch0: libtgvoip-cxx-std-version.patch
 Patch1: libtgvoip-system-json11.patch
 
 Provides: bundled(webrtc-audio-processing) = 0.3
