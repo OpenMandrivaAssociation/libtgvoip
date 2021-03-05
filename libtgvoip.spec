@@ -1,7 +1,7 @@
 %define major	2
 %define libname	%mklibname tgvoip %{version}
 %define devname	%mklibname -d tgvoip
-%global commit0 b98a01ea44916444cb1b9192f80b46f974d296a6
+%global commit0 0c0a6e476df58ee441490da72ca7a32f83e68dbd
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
 %global date 20200521
 
