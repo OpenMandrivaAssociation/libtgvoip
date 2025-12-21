@@ -20,6 +20,10 @@ Source0: %{url}/archive/%{commit0}/%{name}-%{shortcommit0}.tar.gz
 Patch1: libtgvoip-system-json11.patch
 
 Provides: bundled(webrtc-audio-processing) = 0.3
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
 BuildRequires: pkgconfig(libpulse)
 BuildRequires: pkgconfig(openssl)
 BuildRequires: pkgconfig(json11)
